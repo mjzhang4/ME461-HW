@@ -332,13 +332,13 @@ int16_t WriteBQ32000(uint16_t second, uint16_t minute, uint16_t hour,
     int16_t I2C_Xready = 0;
 
     //MJZ: Convert all passed parameters to a BCD format
-    uint16_t second_bcd = (second / 10) << 4 + (second % 10);
-    uint16_t minute_bcd = (minute / 10) << 4 + (minute % 10);
-    uint16_t hour_bcd = (hour / 10) << 4 + (hour % 10);
+    uint16_t second_bcd = ((second / 10) << 4) + (second % 10);
+    uint16_t minute_bcd = ((minute / 10) << 4) + (minute % 10);
+    uint16_t hour_bcd = ((hour / 10) << 4) + (hour % 10);
     uint16_t day_bcd = day;
-    uint16_t date_bcd = (date / 10) << 4 + (date % 10);
-    uint16_t month_bcd = (month / 10) << 4 + (month % 10);
-    uint16_t year_bcd = (year / 10) << 4 + (year % 10);
+    uint16_t date_bcd = ((date / 10) << 4) + (date % 10);
+    uint16_t month_bcd = ((month / 10) << 4) + (month % 10);
+    uint16_t year_bcd = ((year / 10) << 4) + (year % 10);
     serial_printf(&SerialA, "year: %d \r\n", year_bcd);
 
     DELAY_US(200);
@@ -808,17 +808,17 @@ void main(void)
     //Friday 10/27/23 12:30:15
     I2CB_Init(); //MJZ: initialize i2c
 
-//    if(WriteBQ32000(15, 30, 12, 6, 27, 10, 23) == 0)
-//    {
-//        serial_printf(&SerialA, "Date Write Successful!\r\n");
+    if(WriteBQ32000(15, 30, 12, 6, 27, 10, 23) == 0)
+    {
+        serial_printf(&SerialA, "Date Write Successful!\r\n");
+
+    }
+
+//        if(WriteBQ32000(30, 44, 11, 4, 31, 3, 21) == 0)
+//        {
+//            serial_printf(&SerialA, "Date Write Successful!\r\n");
 //
-//    }
-
-        if(WriteBQ32000(30, 44, 11, 4, 31, 3, 21) == 0)
-        {
-            serial_printf(&SerialA, "Date Write Successful!\r\n");
-
-        }
+//        }
 
     while (1)
     {
@@ -830,49 +830,49 @@ void main(void)
             if (day_val == 1)
             {
                 serial_printf(&SerialA, "Sunday %d/%d/%d %d:%d:%d\r\n", month_val,
-                              day_val, year_val, hour_val, minute_val,
+                              date_val, year_val, hour_val, minute_val,
                               second_val);
 
             }
             else if (day_val == 2)
             {
                 serial_printf(&SerialA, "Monday %d/%d/%d %d:%d:%d\r\n", month_val,
-                              day_val, year_val, hour_val, minute_val,
+                              date_val, year_val, hour_val, minute_val,
                               second_val);
 
             }
             else if (day_val == 3)
             {
                 serial_printf(&SerialA, "Tuesday %d/%d/%d %d:%d:%d\r\n", month_val,
-                              day_val, year_val, hour_val, minute_val,
+                              date_val, year_val, hour_val, minute_val,
                               second_val);
 
             }
             else if (day_val == 4)
             {
                 serial_printf(&SerialA, "Wednesday %d/%d/%d %d:%d:%d\r\n",
-                              month_val, day_val, year_val, hour_val,
+                              month_val, date_val, year_val, hour_val,
                               minute_val, second_val);
 
             }
             else if (day_val == 5)
             {
                 serial_printf(&SerialA, "Thursday %d/%d/%d %d:%d:%d\r\n", month_val,
-                              day_val, year_val, hour_val, minute_val,
+                              date_val, year_val, hour_val, minute_val,
                               second_val);
 
             }
             else if (day_val == 6)
             {
                 serial_printf(&SerialA, "Friday %d/%d/%d %d:%d:%d\r\n", month_val,
-                              day_val, year_val, hour_val, minute_val,
+                              date_val, year_val, hour_val, minute_val,
                               second_val);
 
             }
             else
             {
                 serial_printf(&SerialA, "Saturday %d/%d/%d %d:%d:%d\r\n", month_val,
-                              day_val, year_val, hour_val, minute_val,
+                              date_val, year_val, hour_val, minute_val,
                               second_val);
 
             }
