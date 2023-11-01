@@ -332,13 +332,14 @@ int16_t WriteBQ32000(uint16_t second, uint16_t minute, uint16_t hour,
     int16_t I2C_Xready = 0;
 
     //MJZ: Convert all passed parameters to a BCD format
-    uint8_t second_bcd = (second / 10) << 4 + (second % 10);
-    uint8_t minute_bcd = (minute / 10) << 4 + (minute % 10);
-    uint8_t hour_bcd = (hour / 10) << 4 + (hour % 10);
-    uint8_t day_bcd = (day / 10) << 4 + (day % 10);
-    uint8_t date_bcd = (date / 10) << 4 + (date % 10);
-    uint8_t month_bcd = (month / 10) << 4 + (month % 10);
-    uint8_t year_bcd = (year / 10) << 4 + (year % 10);
+    uint16_t second_bcd = (second / 10) << 4 + (second % 10);
+    uint16_t minute_bcd = (minute / 10) << 4 + (minute % 10);
+    uint16_t hour_bcd = (hour / 10) << 4 + (hour % 10);
+    uint16_t day_bcd = day;
+    uint16_t date_bcd = (date / 10) << 4 + (date % 10);
+    uint16_t month_bcd = (month / 10) << 4 + (month % 10);
+    uint16_t year_bcd = (year / 10) << 4 + (year % 10);
+    serial_printf(&SerialA, "year: %d \r\n", year_bcd);
 
     DELAY_US(200);
     if (I2cbRegs.I2CSTR.bit.BB == 1)
@@ -350,7 +351,7 @@ int16_t WriteBQ32000(uint16_t second, uint16_t minute, uint16_t hour,
     {
         return 4;
     }
-    I2cbRegs.I2CSAR.all = 0x68; // MJZ:  Set I2C address to that of DAN777
+    I2cbRegs.I2CSAR.all = 0x68; // MJZ:  Set I2C address to that of BQ32000
     I2cbRegs.I2CCNT = 8; // MJZ: Number of values to send plus start register: 7 + 1
     I2cbRegs.I2CDXR.all = 0; // First need to transfer the register value to start writing data
     I2cbRegs.I2CMDR.all = 0x6E20; // I2C in master mode (MST), I2C is in transmit mode (TRX) with start and stop
@@ -429,11 +430,6 @@ int16_t WriteBQ32000(uint16_t second, uint16_t minute, uint16_t hour,
     if (I2cbRegs.I2CSTR.bit.NACK == 1)
     { // Check for No Acknowledgement
         return 3; // This should not happen
-    }
-    I2C_Xready = I2C_CheckIfTX(39062); // Poll until I2C ready to transmit
-    if (I2C_Xready == -1)
-    {
-        return 4;
     }
 
     return 0;
@@ -563,7 +559,7 @@ int16_t ReadBQ32000(uint16_t *second, uint16_t *minute, uint16_t *hour,
     *day = (0x07 & raw_day);
     *date = (((raw_date >> 4) & 0x03) * 10) + (0x0F & raw_date);
     *month = (((raw_month >> 4) & 0x01) * 10) + (0x0F & raw_month);
-    *year = ((raw_year >> 4) * 10) + (0x0F & raw_month);
+    *year = ((raw_year >> 4) * 10) + (0x0F & raw_year);
     return 0;
 }
 
@@ -812,11 +808,17 @@ void main(void)
     //Friday 10/27/23 12:30:15
     I2CB_Init(); //MJZ: initialize i2c
 
-    if(WriteBQ32000(15, 30, 12, 6, 27, 10, 23) == 0)
-    {
-        serial_printf(&SerialA, "Date Write Successful!\r\n");
+//    if(WriteBQ32000(15, 30, 12, 6, 27, 10, 23) == 0)
+//    {
+//        serial_printf(&SerialA, "Date Write Successful!\r\n");
+//
+//    }
 
-    }
+        if(WriteBQ32000(30, 44, 11, 4, 31, 3, 21) == 0)
+        {
+            serial_printf(&SerialA, "Date Write Successful!\r\n");
+
+        }
 
     while (1)
     {
@@ -889,46 +891,46 @@ void main(void)
             }
 
 
-//            // Write to CHIPXYZ
-//            I2C_OK = WriteDAN777RCServo(motorValue, motorValue);
-//            num_WriteCHIPXYZ_Errors = 0;
-//            while (I2C_OK != 0)
-//            {
-//                num_WriteCHIPXYZ_Errors++;
-//                if (num_WriteCHIPXYZ_Errors > 2)
-//                {
-//                    serial_printf(&SerialA,
-//                                  "WriteTwo16BitValuesToCHIPXYZ Error: %d\r\n",
-//                                  I2C_OK);
-//                    I2C_OK = 0;
-//                }
-//                else
-//                {
-//                    I2CB_Init();
-//                    DELAY_US(100000);
-//                    I2C_OK = WriteDAN777RCServo(motorValue, motorValue);
-//                }
-//            }
-//            // Read CHIPXYZ
-//            I2C_OK = ReadDAN777ADC(&ADCOut1, &ADCOut2);
-//            num_ReadCHIPXYZ_Errors = 0;
-//            while (I2C_OK != 0)
-//            {
-//                num_ReadCHIPXYZ_Errors++;
-//                if (num_ReadCHIPXYZ_Errors > 2)
-//                {
-//                    serial_printf(&SerialA,
-//                                  "ReadTwo16BitValuesFromCHIPXYZ Error: %d\r\n",
-//                                  I2C_OK);
-//                    I2C_OK = 0;
-//                }
-//                else
-//                {
-//                    I2CB_Init();
-//                    DELAY_US(100000);
-//                    I2C_OK = ReadDAN777ADC(&ADCOut1, &ADCOut2);
-//                }
-//            }
+            // Write to CHIPXYZ
+            I2C_OK = WriteDAN777RCServo(motorValue, motorValue);
+            num_WriteCHIPXYZ_Errors = 0;
+            while (I2C_OK != 0)
+            {
+                num_WriteCHIPXYZ_Errors++;
+                if (num_WriteCHIPXYZ_Errors > 2)
+                {
+                    serial_printf(&SerialA,
+                                  "WriteTwo16BitValuesToCHIPXYZ Error: %d\r\n",
+                                  I2C_OK);
+                    I2C_OK = 0;
+                }
+                else
+                {
+                    I2CB_Init();
+                    DELAY_US(100000);
+                    I2C_OK = WriteDAN777RCServo(motorValue, motorValue);
+                }
+            }
+            // Read CHIPXYZ
+            I2C_OK = ReadDAN777ADC(&ADCOut1, &ADCOut2);
+            num_ReadCHIPXYZ_Errors = 0;
+            while (I2C_OK != 0)
+            {
+                num_ReadCHIPXYZ_Errors++;
+                if (num_ReadCHIPXYZ_Errors > 2)
+                {
+                    serial_printf(&SerialA,
+                                  "ReadTwo16BitValuesFromCHIPXYZ Error: %d\r\n",
+                                  I2C_OK);
+                    I2C_OK = 0;
+                }
+                else
+                {
+                    I2CB_Init();
+                    DELAY_US(100000);
+                    I2C_OK = ReadDAN777ADC(&ADCOut1, &ADCOut2);
+                }
+            }
         }
     }
 }
